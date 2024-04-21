@@ -30,9 +30,9 @@ controller.reset = (req, res) => {
     Result.findAll().then((score) => res.json(score));
 };
 
-function randomChoice() {
-    var choices = ['pierre', 'feuille', 'ciseaux'];
-    var randomIndex = Math.floor(Math.random() * choices.length);
+randomChoice = () => {
+    const choices = ['pierre', 'feuille', 'ciseaux'];
+    const randomIndex = Math.floor(Math.random() * choices.length);
     return choices[randomIndex];
 }
 
@@ -41,7 +41,7 @@ controller.play = (req, res) => {
     const playerChoice = req.params.choice;
     const serverChoice = randomChoice();
 
-    let gameResult = Result.findOne();
+    let gameResult = Result.findOne();    
 
     if (!gameResult) {
         gameResult = Result.create({ win: 0, loose: 0, draw: 0 });
@@ -49,9 +49,7 @@ controller.play = (req, res) => {
 
     if (playerChoice === serverChoice) {
         res.json({ message: `le serveur à choisie : ${serverChoice}, vous avez choisie ${playerChoice}, il y a égalité` });
-        gameResult.draw++;
-        res.send(gameResult)
-        
+        gameResult.draw++;        
     } else if (
         (playerChoice === 'ciseaux' && serverChoice === 'feuille') ||
         (playerChoice === 'feuille' && serverChoice === 'pierre') ||
@@ -64,7 +62,14 @@ controller.play = (req, res) => {
         gameResult.loose++;
     }
 
-    gameResult.save();
+    Result.create(gameResult)
+    .then((gameResult) => {
+      res.send(gameResult);
+    })
+    .catch((err) => {
+        res.send(err);
+      });
+    //gameResult.save();
 
 };
 
