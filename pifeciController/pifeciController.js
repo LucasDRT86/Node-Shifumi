@@ -8,9 +8,9 @@ controller.scoreDisplay = (req, res) => {
 
 controller.cheat = (req, res) => {
     const cheatingStat = {
-        win: req.params.wins,
-        loose: req.params.loose,
-        draw: req.params.draw,
+        win: parseInt(req.params.wins),
+        loose: parseInt(req.params.loose),
+        draw: parseInt(req.params.draw),
       };
     res.send(cheatingStat);
     res.json({ message: "C'est pas bien de tricher" });
