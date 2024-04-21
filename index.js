@@ -8,4 +8,5 @@ app.listen(3000, () => {
     console.log('App running on port 3000');
   });
 
-app.use("/product", pifeciRouter)
+
+app.use("/game", pifeciRouter);

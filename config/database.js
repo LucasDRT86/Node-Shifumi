@@ -3,7 +3,7 @@ const sequelize = require('sequelize');
 
 const db = new sequelize({
   dialect: 'sqlite',
-  storage: '../product.sqlite'
+  storage: 'db.sqlite'
 });
 
 db.sync();

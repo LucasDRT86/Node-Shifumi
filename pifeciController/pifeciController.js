@@ -1,20 +1,71 @@
-const Result = require('../model/pifeci.js');
+const Result = require('../model/pifeci');
+const controller = {};
 
-const scoreDisplay = (req, res) => {
-    Result.findAll()
-    res.send()
+controller.scoreDisplay = (req, res) => {
+    console.log(`test`);
+    Result.findAll().then((score) => res.json(score));
 };
 
-const cheat = (req, res) => {
+controller.cheat = (req, res) => {
     const cheatingStat = {
         win: req.params.wins,
         loose: req.params.loose,
         draw: req.params.draw,
       };
+    res.send(cheatingStat);
+    res.json({ message: "C'est pas bien de tricher" });
 };
 
-const update = (req, res) => {};
+controller.reset = (req, res) => {
 
-const play = (req, res) => {};
+    const resetStat = Result.findOne();
 
-module.exports = { play, update, cheat, scoreDisplay };
+    resetStat.win = 0;
+    resetStat.loose = 0;
+    resetStat.draw = 0;
+
+    resetStat.save();  
+
+    res.json({ message: "Le score a été réinitialisé avec succès." });
+    Result.findAll().then((score) => res.json(score));
+};
+
+function randomChoice() {
+    var choices = ['pierre', 'feuille', 'ciseaux'];
+    var randomIndex = Math.floor(Math.random() * choices.length);
+    return choices[randomIndex];
+}
+
+controller.play = (req, res) => {
+
+    const playerChoice = req.params.choice;
+    const serverChoice = randomChoice();
+
+    let gameResult = Result.findOne();
+
+    if (!gameResult) {
+        gameResult = Result.create({ win: 0, loose: 0, draw: 0 });
+    }
+
+    if (playerChoice === serverChoice) {
+        res.json({ message: `le serveur à choisie : ${serverChoice}, vous avez choisie ${playerChoice}, il y a égalité` });
+        gameResult.draw++;
+        res.send(gameResult)
+        
+    } else if (
+        (playerChoice === 'ciseaux' && serverChoice === 'feuille') ||
+        (playerChoice === 'feuille' && serverChoice === 'pierre') ||
+        (playerChoice === 'pierre' && serverChoice === 'ciseaux')
+    ) {
+        res.json({ message: `le serveur à choisie : ${serverChoice}, vous avez choisie ${playerChoice}, vous avez gagné !`});
+        gameResult.win++;
+    } else {
+        res.json({ message: `le serveur à choisie : ${serverChoice}, vous avez choisie ${playerChoice}, le serveur à gagné`});
+        gameResult.loose++;
+    }
+
+    gameResult.save();
+
+};
+
+module.exports = controller;
