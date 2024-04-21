@@ -2,32 +2,30 @@ const Result = require('../model/pifeci');
 const controller = {};
 
 controller.scoreDisplay = (req, res) => {
-    console.log(`test`);
     Result.findAll().then((score) => res.json(score));
 };
 
-controller.cheat = (req, res) => {
-    const cheatingStat = {
-        win: parseInt(req.params.wins),
-        loose: parseInt(req.params.loose),
-        draw: parseInt(req.params.draw),
-      };
-    res.send(cheatingStat);
+controller.cheat = async (req, res) => {
+    const cheatingStat = await Result.findOne();
+    cheatingStat.win = parseInt(req.params.wins);
+    cheatingStat.loose = parseInt(req.params.loose)
+    cheatingStat.draw = parseInt(req.params.draw)
+    
+    await cheatingStat.save();  
     res.json({ message: "C'est pas bien de tricher" });
 };
 
-controller.reset = (req, res) => {
+controller.reset = async (req, res) => {
 
-    const resetStat = Result.findOne();
+    const resetStat = await Result.findOne();
 
     resetStat.win = 0;
     resetStat.loose = 0;
     resetStat.draw = 0;
 
-    resetStat.save();  
+    await resetStat.save();  
 
     res.json({ message: "Le score a été réinitialisé avec succès." });
-    Result.findAll().then((score) => res.json(score));
 };
 
 randomChoice = () => {
@@ -36,15 +34,15 @@ randomChoice = () => {
     return choices[randomIndex];
 }
 
-controller.play = (req, res) => {
+controller.play = async (req, res) => {
 
     const playerChoice = req.params.choice;
     const serverChoice = randomChoice();
 
-    let gameResult = Result.findOne();    
+    let gameResult = await Result.findOne();    
 
     if (!gameResult) {
-        gameResult = Result.create({ win: 0, loose: 0, draw: 0 });
+        gameResult = await Result.create({ win: 0, loose: 0, draw: 0 });
     }
 
     if (playerChoice === serverChoice) {
@@ -62,14 +60,7 @@ controller.play = (req, res) => {
         gameResult.loose++;
     }
 
-    Result.create(gameResult)
-    .then((gameResult) => {
-      res.send(gameResult);
-    })
-    .catch((err) => {
-        res.send(err);
-      });
-    //gameResult.save();
+    await gameResult.save(); 
 
 };
 
